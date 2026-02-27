@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 33 100% 97%;
+    --foreground: 24 20% 20%;
+    --card: 30 67% 97%;
+    --card-foreground: 24 20% 20%;
+    --popover: 33 100% 97%;
+    --popover-foreground: 24 20% 20%;
+    --primary: 24 95% 53%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 142 30% 75%;
+    --secondary-foreground: 142 40% 20%;
+    --muted: 30 30% 92%;
+    --muted-foreground: 24 10% 45%;
+    --accent: 30 60% 90%;
+    --accent-foreground: 24 20% 20%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 30 25% 87%;
+    --input: 30 25% 87%;
+    --ring: 24 95% 53%;
+    --radius: 0.75rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Safe area for iOS notch */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Smooth page transitions */
+.page-enter {
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Hide scrollbar but keep scrolling */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
