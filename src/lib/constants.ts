@@ -1,0 +1,10 @@
+export const SYMPTOM_OPTIONS = ['吐奶', '胀气', '红屁股', '鼻塞', '黄疸观察', '发热', '湿疹', '腹泻'] as const;
+export const FEED_TYPES = ['母乳', '奶粉', '混合'] as const;
+export const FEED_SIDES = ['左', '右', '双', '无'] as const;
+export const SLEEP_PLACES = ['床', '抱', '推车', '其他'] as const;
+export const SLEEP_METHODS = ['奶睡', '抱睡', '自主入睡', '其他'] as const;
+export const DIAPER_KINDS = ['便', '尿'] as const;
+export const POOP_TEXTURES = ['稀', '糊', '成形', '硬'] as const;
+export const POOP_COLORS = ['黄', '绿', '黑', '红'] as const;
+export const MOOD_OPTIONS = ['😊', '😐', '😢', '😤', '😴', '🥰'] as const;
+export const SCHEMA_VERSION = 1;
