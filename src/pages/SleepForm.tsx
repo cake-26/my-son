@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,29 +9,16 @@ import { db } from "@/db";
 import { syncDailyLog } from "@/lib/daily-sync";
 import { SLEEP_PLACES, SLEEP_METHODS } from "@/lib/constants";
 import { PageHeader } from "@/components/PageHeader";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
-import {
-  AlertDialog,
-  AlertDialogTrigger,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogAction,
-  AlertDialogCancel,
-} from "@/components/ui/alert-dialog";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
+import MenuItem from "@mui/material/MenuItem";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogActions from "@mui/material/DialogActions";
 
 const sleepSchema = z
   .object({
@@ -64,6 +51,7 @@ export default function SleepForm() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const isEdit = !!id;
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   const {
     register,
@@ -138,21 +126,23 @@ export default function SleepForm() {
         <Card>
           <CardContent className="pt-6">
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="start">开始时间</Label>
-                <Input id="start" type="datetime-local" {...register("start")} />
-                {errors.start && (
-                  <p className="text-sm text-destructive">{errors.start.message}</p>
-                )}
-              </div>
+              <TextField
+                label="开始时间"
+                type="datetime-local"
+                {...register("start")}
+                InputLabelProps={{ shrink: true }}
+                error={!!errors.start}
+                helperText={errors.start?.message}
+              />
 
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="end">结束时间</Label>
-                <Input id="end" type="datetime-local" {...register("end")} />
-                {errors.end && (
-                  <p className="text-sm text-destructive">{errors.end.message}</p>
-                )}
-              </div>
+              <TextField
+                label="结束时间"
+                type="datetime-local"
+                {...register("end")}
+                InputLabelProps={{ shrink: true }}
+                error={!!errors.end}
+                helperText={errors.end?.message}
+              />
 
               {duration && (
                 <div className="rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">
@@ -160,85 +150,70 @@ export default function SleepForm() {
                 </div>
               )}
 
-              <div className="flex flex-col gap-2">
-                <Label>地点</Label>
-                <Select
-                  value={watch("place") ?? ""}
-                  onValueChange={(v) => setValue("place", v as any, { shouldValidate: true })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="选择地点" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {SLEEP_PLACES.map((p) => (
-                      <SelectItem key={p} value={p}>
-                        {p}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.place && (
-                  <p className="text-sm text-destructive">{errors.place.message}</p>
-                )}
-              </div>
+              <TextField
+                select
+                label="地点"
+                value={watch("place") ?? ""}
+                onChange={(e) => setValue("place", e.target.value as any, { shouldValidate: true })}
+                error={!!errors.place}
+                helperText={errors.place?.message}
+              >
+                {SLEEP_PLACES.map((p) => (
+                  <MenuItem key={p} value={p}>{p}</MenuItem>
+                ))}
+              </TextField>
 
-              <div className="flex flex-col gap-2">
-                <Label>入睡方式</Label>
-                <Select
-                  value={watch("method") ?? ""}
-                  onValueChange={(v) => setValue("method", v as any, { shouldValidate: true })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="选择方式" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {SLEEP_METHODS.map((m) => (
-                      <SelectItem key={m} value={m}>
-                        {m}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.method && (
-                  <p className="text-sm text-destructive">{errors.method.message}</p>
-                )}
-              </div>
+              <TextField
+                select
+                label="入睡方式"
+                value={watch("method") ?? ""}
+                onChange={(e) => setValue("method", e.target.value as any, { shouldValidate: true })}
+                error={!!errors.method}
+                helperText={errors.method?.message}
+              >
+                {SLEEP_METHODS.map((m) => (
+                  <MenuItem key={m} value={m}>{m}</MenuItem>
+                ))}
+              </TextField>
 
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="note">备注</Label>
-                <Textarea id="note" placeholder="可选" rows={3} {...register("note")} />
-              </div>
+              <TextField
+                label="备注"
+                multiline
+                rows={3}
+                placeholder="可选"
+                {...register("note")}
+              />
 
               <div className="flex flex-col gap-2 pt-2">
-                <Button type="submit" disabled={isSubmitting}>
+                <Button type="submit" variant="contained" disabled={isSubmitting}>
                   保存
                 </Button>
                 {isEdit && (
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button type="button" variant="destructive">
-                        删除
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>确认删除</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          删除后无法恢复，确定要删除这条记录吗？
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>取消</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDelete}>确认删除</AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                  <Button
+                    type="button"
+                    variant="contained"
+                    color="error"
+                    onClick={() => setDeleteOpen(true)}
+                  >
+                    删除
+                  </Button>
                 )}
               </div>
             </form>
           </CardContent>
         </Card>
       </div>
+
+      <Dialog open={deleteOpen} onClose={() => setDeleteOpen(false)}>
+        <DialogTitle>确认删除</DialogTitle>
+        <DialogContent>
+          <DialogContentText>删除后无法恢复，确定要删除这条记录吗？</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteOpen(false)}>取消</Button>
+          <Button color="error" onClick={handleDelete}>确认删除</Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }

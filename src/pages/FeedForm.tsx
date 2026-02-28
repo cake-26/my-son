@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,30 +9,18 @@ import { db } from "@/db";
 import { syncDailyLog } from "@/lib/daily-sync";
 import { FEED_TYPES, FEED_SIDES } from "@/lib/constants";
 import { PageHeader } from "@/components/PageHeader";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
-import {
-  AlertDialog,
-  AlertDialogTrigger,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogAction,
-  AlertDialogCancel,
-} from "@/components/ui/alert-dialog";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
+import MenuItem from "@mui/material/MenuItem";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Switch from "@mui/material/Switch";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogActions from "@mui/material/DialogActions";
 
 const feedSchema = z.object({
   datetime: z.string().min(1, "请选择时间"),
@@ -55,6 +43,7 @@ export default function FeedForm() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const isEdit = !!id;
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   const {
     register,
@@ -134,131 +123,114 @@ export default function FeedForm() {
         <Card>
           <CardContent className="pt-6">
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="datetime">时间</Label>
-                <Input id="datetime" type="datetime-local" {...register("datetime")} />
-                {errors.datetime && (
-                  <p className="text-sm text-destructive">{errors.datetime.message}</p>
-                )}
-              </div>
+              <TextField
+                label="时间"
+                type="datetime-local"
+                {...register("datetime")}
+                InputLabelProps={{ shrink: true }}
+                error={!!errors.datetime}
+                helperText={errors.datetime?.message}
+              />
 
-              <div className="flex flex-col gap-2">
-                <Label>类型</Label>
-                <Select
-                  value={watch("type") ?? ""}
-                  onValueChange={(v) => setValue("type", v as any, { shouldValidate: true })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="选择类型" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {FEED_TYPES.map((t) => (
-                      <SelectItem key={t} value={t}>
-                        {t}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.type && (
-                  <p className="text-sm text-destructive">{errors.type.message}</p>
-                )}
-              </div>
+              <TextField
+                select
+                label="类型"
+                value={watch("type") ?? ""}
+                onChange={(e) => setValue("type", e.target.value as any, { shouldValidate: true })}
+                error={!!errors.type}
+                helperText={errors.type?.message}
+              >
+                {FEED_TYPES.map((t) => (
+                  <MenuItem key={t} value={t}>{t}</MenuItem>
+                ))}
+              </TextField>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="amountMl">奶量(ml)</Label>
-                  <Input
-                    id="amountMl"
-                    type="number"
-                    min={0}
-                    placeholder="可选"
-                    {...register("amountMl")}
-                  />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="durationMin">时长(分钟)</Label>
-                  <Input
-                    id="durationMin"
-                    type="number"
-                    min={0}
-                    placeholder="可选"
-                    {...register("durationMin")}
-                  />
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <Label>侧边</Label>
-                <Select
-                  value={watch("side")}
-                  onValueChange={(v) => setValue("side", v as any, { shouldValidate: true })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="选择侧边" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {FEED_SIDES.map((s) => (
-                      <SelectItem key={s} value={s}>
-                        {s}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <Label htmlFor="spitUp">吐奶</Label>
-                <Switch
-                  id="spitUp"
-                  checked={watch("spitUp")}
-                  onCheckedChange={(v) => setValue("spitUp", v)}
+                <TextField
+                  label="奶量(ml)"
+                  type="number"
+                  inputProps={{ min: 0 }}
+                  placeholder="可选"
+                  {...register("amountMl")}
+                />
+                <TextField
+                  label="时长(分钟)"
+                  type="number"
+                  inputProps={{ min: 0 }}
+                  placeholder="可选"
+                  {...register("durationMin")}
                 />
               </div>
 
-              <div className="flex items-center justify-between">
-                <Label htmlFor="burpOk">拍嗝成功</Label>
-                <Switch
-                  id="burpOk"
-                  checked={watch("burpOk")}
-                  onCheckedChange={(v) => setValue("burpOk", v)}
-                />
-              </div>
+              <TextField
+                select
+                label="侧边"
+                value={watch("side")}
+                onChange={(e) => setValue("side", e.target.value as any, { shouldValidate: true })}
+              >
+                {FEED_SIDES.map((s) => (
+                  <MenuItem key={s} value={s}>{s}</MenuItem>
+                ))}
+              </TextField>
 
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="note">备注</Label>
-                <Textarea id="note" placeholder="可选" rows={3} {...register("note")} />
-              </div>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={watch("spitUp")}
+                    onChange={(_, v) => setValue("spitUp", v)}
+                  />
+                }
+                label="吐奶"
+              />
+
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={watch("burpOk")}
+                    onChange={(_, v) => setValue("burpOk", v)}
+                  />
+                }
+                label="拍嗝成功"
+              />
+
+              <TextField
+                label="备注"
+                multiline
+                rows={3}
+                placeholder="可选"
+                {...register("note")}
+              />
 
               <div className="flex flex-col gap-2 pt-2">
-                <Button type="submit" disabled={isSubmitting}>
+                <Button type="submit" variant="contained" disabled={isSubmitting}>
                   保存
                 </Button>
                 {isEdit && (
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button type="button" variant="destructive">
-                        删除
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>确认删除</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          删除后无法恢复，确定要删除这条记录吗？
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>取消</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDelete}>确认删除</AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                  <Button
+                    type="button"
+                    variant="contained"
+                    color="error"
+                    onClick={() => setDeleteOpen(true)}
+                  >
+                    删除
+                  </Button>
                 )}
               </div>
             </form>
           </CardContent>
         </Card>
       </div>
+
+      <Dialog open={deleteOpen} onClose={() => setDeleteOpen(false)}>
+        <DialogTitle>确认删除</DialogTitle>
+        <DialogContent>
+          <DialogContentText>删除后无法恢复，确定要删除这条记录吗？</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteOpen(false)}>取消</Button>
+          <Button color="error" onClick={handleDelete}>确认删除</Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }

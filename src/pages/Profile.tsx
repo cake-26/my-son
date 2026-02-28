@@ -15,18 +15,14 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { db } from "@/db";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
-import { PageHeader } from "@/components/PageHeader";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Button,
+  Card,
+  CardContent,
+  TextField,
+  MenuItem,
+} from "@mui/material";
+import { PageHeader } from "@/components/PageHeader";
 
 const schema = z.object({
   name: z.string().min(1, "请输入宝宝姓名"),
@@ -103,65 +99,72 @@ export default function ProfilePage() {
       <PageHeader title="我的" />
 
       <div className="px-4 space-y-4">
-        {/* Profile Form */}
         <form onSubmit={handleSubmit(onSubmit)}>
           <Card className="rounded-xl">
             <CardContent className="p-4 space-y-4">
               <h3 className="font-semibold text-sm text-muted-foreground">宝宝信息</h3>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="name">姓名 *</Label>
-                <Input id="name" placeholder="宝宝的名字" {...register("name")} />
-                {errors.name && (
-                  <p className="text-xs text-destructive">{errors.name.message}</p>
+              <TextField
+                label="姓名 *"
+                fullWidth
+                placeholder="宝宝的名字"
+                {...register("name")}
+                error={!!errors.name}
+                helperText={errors.name?.message}
+              />
+
+              <TextField
+                label="昵称"
+                fullWidth
+                placeholder="宝宝的小名"
+                {...register("nickname")}
+              />
+
+              <TextField
+                label="出生日期 *"
+                type="date"
+                fullWidth
+                {...register("birthDate")}
+                error={!!errors.birthDate}
+                helperText={errors.birthDate?.message}
+                InputLabelProps={{ shrink: true }}
+              />
+
+              <TextField
+                label="出生时间"
+                type="time"
+                fullWidth
+                {...register("birthTime")}
+                InputLabelProps={{ shrink: true }}
+              />
+
+              <Controller
+                name="gender"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    select
+                    label="性别"
+                    fullWidth
+                    value={field.value}
+                    onChange={field.onChange}
+                  >
+                    <MenuItem value="">
+                      <em>未选择</em>
+                    </MenuItem>
+                    <MenuItem value="male">男</MenuItem>
+                    <MenuItem value="female">女</MenuItem>
+                  </TextField>
                 )}
-              </div>
+              />
 
-              <div className="space-y-1.5">
-                <Label htmlFor="nickname">昵称</Label>
-                <Input id="nickname" placeholder="宝宝的小名" {...register("nickname")} />
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="birthDate">出生日期 *</Label>
-                <Input id="birthDate" type="date" {...register("birthDate")} />
-                {errors.birthDate && (
-                  <p className="text-xs text-destructive">{errors.birthDate.message}</p>
-                )}
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="birthTime">出生时间</Label>
-                <Input id="birthTime" type="time" {...register("birthTime")} />
-              </div>
-
-              <div className="space-y-1.5">
-                <Label>性别</Label>
-                <Controller
-                  name="gender"
-                  control={control}
-                  render={({ field }) => (
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="选择性别（可选）" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="male">男</SelectItem>
-                        <SelectItem value="female">女</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-              </div>
-
-              <Button type="submit" className="w-full rounded-full" disabled={isSubmitting}>
+              <Button type="submit" variant="contained" fullWidth className="rounded-full" disabled={isSubmitting}>
                 保存信息
               </Button>
             </CardContent>
           </Card>
         </form>
 
-        {/* Navigation Links */}
         <Card className="rounded-xl overflow-hidden">
           <CardContent className="p-0">
             {NAV_LINKS.map((link, i) => (

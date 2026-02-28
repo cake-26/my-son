@@ -1,37 +1,37 @@
-import { Link, useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { BottomNavigation, BottomNavigationAction, Paper } from "@mui/material";
 import { Home, ClipboardList, TrendingUp, User } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 const tabs = [
-  { to: "/", label: "首页", icon: Home },
-  { to: "/records", label: "记录", icon: ClipboardList },
-  { to: "/growth", label: "成长", icon: TrendingUp },
-  { to: "/profile", label: "我的", icon: User },
-] as const;
+  { to: "/", label: "首页", icon: <Home size={22} /> },
+  { to: "/records", label: "记录", icon: <ClipboardList size={22} /> },
+  { to: "/growth", label: "成长", icon: <TrendingUp size={22} /> },
+  { to: "/profile", label: "我的", icon: <User size={22} /> },
+];
 
 export function TabBar() {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
+
+  const currentIdx = tabs.findIndex(({ to }) =>
+    to === "/" ? pathname === "/" : pathname.startsWith(to)
+  );
 
   return (
-    <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white/80 backdrop-blur-lg border-t z-50 pb-[env(safe-area-inset-bottom)]">
-      <div className="flex items-center justify-around h-14">
-        {tabs.map(({ to, label, icon: Icon }) => {
-          const active = to === "/" ? pathname === "/" : pathname.startsWith(to);
-          return (
-            <Link
-              key={to}
-              to={to}
-              className={cn(
-                "flex flex-col items-center gap-0.5 text-[10px] transition-colors",
-                active ? "text-primary" : "text-muted-foreground"
-              )}
-            >
-              <Icon className="h-5 w-5" />
-              <span>{label}</span>
-            </Link>
-          );
-        })}
-      </div>
-    </nav>
+    <Paper
+      className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md z-50"
+      elevation={3}
+      sx={{ borderRadius: 0, pb: "env(safe-area-inset-bottom)" }}
+    >
+      <BottomNavigation
+        value={currentIdx}
+        onChange={(_, idx) => navigate(tabs[idx].to)}
+        showLabels
+      >
+        {tabs.map((t) => (
+          <BottomNavigationAction key={t.to} label={t.label} icon={t.icon} />
+        ))}
+      </BottomNavigation>
+    </Paper>
   );
 }

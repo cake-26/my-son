@@ -1,3 +1,5 @@
+import { Typography, Box } from "@mui/material";
+
 interface EmptyStateProps {
   icon: React.ReactNode;
   title: string;
@@ -7,13 +9,15 @@ interface EmptyStateProps {
 
 export function EmptyState({ icon, title, description, action }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
-      <div className="text-muted-foreground mb-4">{icon}</div>
-      <h3 className="text-base font-medium text-foreground">{title}</h3>
+    <Box className="flex flex-col items-center justify-center py-16 px-6 text-center">
+      <Box sx={{ color: "text.secondary", mb: 2 }}>{icon}</Box>
+      <Typography variant="subtitle1" fontWeight={500}>{title}</Typography>
       {description && (
-        <p className="mt-1.5 text-sm text-muted-foreground max-w-[240px]">{description}</p>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, maxWidth: 240 }}>
+          {description}
+        </Typography>
       )}
-      {action && <div className="mt-5">{action}</div>}
-    </div>
+      {action && <Box sx={{ mt: 2.5 }}>{action}</Box>}
+    </Box>
   );
 }

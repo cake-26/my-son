@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -7,23 +7,19 @@ import { format } from "date-fns";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { db } from "@/db";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
-import { PageHeader } from "@/components/PageHeader";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+  Button,
+  Card,
+  CardContent,
+  TextField,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+} from "@mui/material";
+import { PageHeader } from "@/components/PageHeader";
 
 const schema = z
   .object({
@@ -47,6 +43,7 @@ export default function GrowthForm() {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEdit = !!id;
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   const {
     register,
@@ -113,102 +110,81 @@ export default function GrowthForm() {
       <form onSubmit={handleSubmit(onSubmit)} className="px-4 space-y-4">
         <Card className="rounded-xl">
           <CardContent className="p-4 space-y-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="date">日期 *</Label>
-              <Input id="date" type="date" {...register("date")} />
-              {errors.date && (
-                <p className="text-xs text-destructive">{errors.date.message}</p>
-              )}
-            </div>
+            <TextField
+              label="日期 *"
+              type="date"
+              fullWidth
+              {...register("date")}
+              error={!!errors.date}
+              helperText={errors.date?.message}
+              InputLabelProps={{ shrink: true }}
+            />
 
-            <div className="space-y-1.5">
-              <Label htmlFor="weightKg">体重 (kg)</Label>
-              <Input
-                id="weightKg"
-                type="number"
-                step="0.01"
-                inputMode="decimal"
-                placeholder="例如 4.50"
-                {...register("weightKg")}
-              />
-              {errors.weightKg && (
-                <p className="text-xs text-destructive">
-                  {errors.weightKg.message}
-                </p>
-              )}
-            </div>
+            <TextField
+              label="体重 (kg)"
+              type="number"
+              fullWidth
+              inputProps={{ step: "0.01", inputMode: "decimal" }}
+              placeholder="例如 4.50"
+              {...register("weightKg")}
+              error={!!errors.weightKg}
+              helperText={errors.weightKg?.message}
+            />
 
-            <div className="space-y-1.5">
-              <Label htmlFor="heightCm">身长 (cm)</Label>
-              <Input
-                id="heightCm"
-                type="number"
-                step="0.1"
-                inputMode="decimal"
-                placeholder="例如 52.0"
-                {...register("heightCm")}
-              />
-              {errors.heightCm && (
-                <p className="text-xs text-destructive">
-                  {errors.heightCm.message}
-                </p>
-              )}
-            </div>
+            <TextField
+              label="身长 (cm)"
+              type="number"
+              fullWidth
+              inputProps={{ step: "0.1", inputMode: "decimal" }}
+              placeholder="例如 52.0"
+              {...register("heightCm")}
+              error={!!errors.heightCm}
+              helperText={errors.heightCm?.message}
+            />
 
-            <div className="space-y-1.5">
-              <Label htmlFor="headCm">头围 (cm)</Label>
-              <Input
-                id="headCm"
-                type="number"
-                step="0.1"
-                inputMode="decimal"
-                placeholder="例如 35.0"
-                {...register("headCm")}
-              />
-              {errors.headCm && (
-                <p className="text-xs text-destructive">
-                  {errors.headCm.message}
-                </p>
-              )}
-            </div>
+            <TextField
+              label="头围 (cm)"
+              type="number"
+              fullWidth
+              inputProps={{ step: "0.1", inputMode: "decimal" }}
+              placeholder="例如 35.0"
+              {...register("headCm")}
+              error={!!errors.headCm}
+              helperText={errors.headCm?.message}
+            />
 
-            <div className="space-y-1.5">
-              <Label htmlFor="note">备注</Label>
-              <Textarea
-                id="note"
-                placeholder="可选备注..."
-                rows={3}
-                {...register("note")}
-              />
-            </div>
+            <TextField
+              label="备注"
+              multiline
+              rows={3}
+              fullWidth
+              placeholder="可选备注..."
+              {...register("note")}
+            />
           </CardContent>
         </Card>
 
         <div className="flex gap-3">
           {isEdit && (
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button type="button" variant="outline" size="icon" className="flex-shrink-0">
-                  <Trash2 className="h-4 w-4 text-destructive" />
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>确认删除</AlertDialogTitle>
-                  <AlertDialogDescription>
+            <>
+              <IconButton onClick={() => setDeleteOpen(true)} className="flex-shrink-0">
+                <Trash2 className="h-4 w-4 text-destructive" />
+              </IconButton>
+              <Dialog open={deleteOpen} onClose={() => setDeleteOpen(false)}>
+                <DialogTitle>确认删除</DialogTitle>
+                <DialogContent>
+                  <DialogContentText>
                     删除后无法恢复，确定要删除这条成长记录吗？
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>取消</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleDelete}>
-                    删除
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+                  </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                  <Button onClick={() => setDeleteOpen(false)}>取消</Button>
+                  <Button color="error" onClick={handleDelete}>删除</Button>
+                </DialogActions>
+              </Dialog>
+            </>
           )}
-          <Button type="submit" className="flex-1 rounded-full" disabled={isSubmitting}>
+          <Button type="submit" variant="contained" className="flex-1 rounded-full" disabled={isSubmitting}>
             {isEdit ? "更新" : "保存"}
           </Button>
         </div>

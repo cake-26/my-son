@@ -3,8 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { Plus, Ruler } from "lucide-react";
 import { db } from "@/db";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Button, Card, CardContent } from "@mui/material";
 import { PageHeader } from "@/components/PageHeader";
 import { EmptyState } from "@/components/EmptyState";
 
@@ -19,11 +18,9 @@ export default function Growth() {
       <PageHeader
         title="成长记录"
         action={
-          <Button asChild size="sm" className="rounded-full gap-1">
-            <Link to="/growth/new">
-              <Plus className="h-4 w-4" />
-              添加
-            </Link>
+          <Button component={Link} to="/growth/new" size="small" variant="contained" className="rounded-full gap-1">
+            <Plus className="h-4 w-4" />
+            添加
           </Button>
         }
       />
@@ -35,11 +32,9 @@ export default function Growth() {
             title="还没有成长记录"
             description="记录宝宝的体重、身长和头围"
             action={
-              <Button asChild size="sm" className="rounded-full">
-                <Link to="/growth/new">
-                  <Plus className="h-4 w-4 mr-1" />
-                  新增记录
-                </Link>
+              <Button component={Link} to="/growth/new" size="small" variant="contained" className="rounded-full">
+                <Plus className="h-4 w-4 mr-1" />
+                新增记录
               </Button>
             }
           />

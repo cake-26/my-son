@@ -3,19 +3,15 @@ import { useRef, useState } from "react";
 import { Download, Upload, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { downloadBackup, importFromFile } from "@/db/backup";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader } from "@/components/PageHeader";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogActions from "@mui/material/DialogActions";
 
 export default function Backup() {
   const navigate = useNavigate();
@@ -78,8 +74,13 @@ export default function Backup() {
             <p className="text-xs text-muted-foreground">
               将所有数据导出为 JSON 文件，可用于恢复或迁移数据。建议定期备份。
             </p>
-            <Button onClick={handleExport} className="w-full rounded-full gap-2">
-              <Download className="h-4 w-4" />
+            <Button
+              variant="contained"
+              onClick={handleExport}
+              className="w-full rounded-full gap-2"
+              startIcon={<Download className="h-4 w-4" />}
+              fullWidth
+            >
               导出备份
             </Button>
           </CardContent>
@@ -111,34 +112,32 @@ export default function Backup() {
               </p>
             )}
             <Button
-              variant="outline"
+              variant="outlined"
               onClick={handleImportClick}
               disabled={!selectedFile || importing}
-              className="w-full rounded-full gap-2"
+              startIcon={<Upload className="h-4 w-4" />}
+              fullWidth
             >
-              <Upload className="h-4 w-4" />
               {importing ? "导入中..." : "导入数据"}
             </Button>
           </CardContent>
         </Card>
       </div>
 
-      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>确认导入</AlertDialogTitle>
-            <AlertDialogDescription>
-              导入将会覆盖所有现有数据，此操作不可撤销。确定要继续吗？
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={importing}>取消</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmImport} disabled={importing}>
-              {importing ? "导入中..." : "确认导入"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)}>
+        <DialogTitle>确认导入</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            导入将会覆盖所有现有数据，此操作不可撤销。确定要继续吗？
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmOpen(false)} disabled={importing}>取消</Button>
+          <Button color="error" onClick={handleConfirmImport} disabled={importing}>
+            {importing ? "导入中..." : "确认导入"}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }

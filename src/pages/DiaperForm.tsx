@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,29 +9,16 @@ import { db } from "@/db";
 import { syncDailyLog } from "@/lib/daily-sync";
 import { DIAPER_KINDS, POOP_TEXTURES, POOP_COLORS } from "@/lib/constants";
 import { PageHeader } from "@/components/PageHeader";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
-import {
-  AlertDialog,
-  AlertDialogTrigger,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogAction,
-  AlertDialogCancel,
-} from "@/components/ui/alert-dialog";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
+import MenuItem from "@mui/material/MenuItem";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogActions from "@mui/material/DialogActions";
 
 const diaperSchema = z.object({
   datetime: z.string().min(1, "请选择时间"),
@@ -51,6 +38,7 @@ export default function DiaperForm() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const isEdit = !!id;
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   const {
     register,
@@ -124,117 +112,96 @@ export default function DiaperForm() {
         <Card>
           <CardContent className="pt-6">
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="datetime">时间</Label>
-                <Input id="datetime" type="datetime-local" {...register("datetime")} />
-                {errors.datetime && (
-                  <p className="text-sm text-destructive">{errors.datetime.message}</p>
-                )}
-              </div>
+              <TextField
+                label="时间"
+                type="datetime-local"
+                {...register("datetime")}
+                InputLabelProps={{ shrink: true }}
+                error={!!errors.datetime}
+                helperText={errors.datetime?.message}
+              />
 
-              <div className="flex flex-col gap-2">
-                <Label>类型</Label>
-                <Select
-                  value={watch("kind") ?? ""}
-                  onValueChange={(v) => setValue("kind", v as any, { shouldValidate: true })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="选择类型" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {DIAPER_KINDS.map((k) => (
-                      <SelectItem key={k} value={k}>
-                        {k}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.kind && (
-                  <p className="text-sm text-destructive">{errors.kind.message}</p>
-                )}
-              </div>
+              <TextField
+                select
+                label="类型"
+                value={watch("kind") ?? ""}
+                onChange={(e) => setValue("kind", e.target.value as any, { shouldValidate: true })}
+                error={!!errors.kind}
+                helperText={errors.kind?.message}
+              >
+                {DIAPER_KINDS.map((k) => (
+                  <MenuItem key={k} value={k}>{k}</MenuItem>
+                ))}
+              </TextField>
 
               {isPoop && (
                 <>
-                  <div className="flex flex-col gap-2">
-                    <Label>质地</Label>
-                    <Select
-                      value={watch("poopTexture") ?? ""}
-                      onValueChange={(v) =>
-                        setValue("poopTexture", v as any, { shouldValidate: true })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="可选" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {POOP_TEXTURES.map((t) => (
-                          <SelectItem key={t} value={t}>
-                            {t}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  <TextField
+                    select
+                    label="质地"
+                    value={watch("poopTexture") ?? ""}
+                    onChange={(e) =>
+                      setValue("poopTexture", e.target.value as any, { shouldValidate: true })
+                    }
+                  >
+                    {POOP_TEXTURES.map((t) => (
+                      <MenuItem key={t} value={t}>{t}</MenuItem>
+                    ))}
+                  </TextField>
 
-                  <div className="flex flex-col gap-2">
-                    <Label>颜色</Label>
-                    <Select
-                      value={watch("poopColor") ?? ""}
-                      onValueChange={(v) =>
-                        setValue("poopColor", v as any, { shouldValidate: true })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="可选" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {POOP_COLORS.map((c) => (
-                          <SelectItem key={c} value={c}>
-                            {c}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  <TextField
+                    select
+                    label="颜色"
+                    value={watch("poopColor") ?? ""}
+                    onChange={(e) =>
+                      setValue("poopColor", e.target.value as any, { shouldValidate: true })
+                    }
+                  >
+                    {POOP_COLORS.map((c) => (
+                      <MenuItem key={c} value={c}>{c}</MenuItem>
+                    ))}
+                  </TextField>
                 </>
               )}
 
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="note">备注</Label>
-                <Textarea id="note" placeholder="可选" rows={3} {...register("note")} />
-              </div>
+              <TextField
+                label="备注"
+                multiline
+                rows={3}
+                placeholder="可选"
+                {...register("note")}
+              />
 
               <div className="flex flex-col gap-2 pt-2">
-                <Button type="submit" disabled={isSubmitting}>
+                <Button type="submit" variant="contained" disabled={isSubmitting}>
                   保存
                 </Button>
                 {isEdit && (
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button type="button" variant="destructive">
-                        删除
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>确认删除</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          删除后无法恢复，确定要删除这条记录吗？
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>取消</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDelete}>确认删除</AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                  <Button
+                    type="button"
+                    variant="contained"
+                    color="error"
+                    onClick={() => setDeleteOpen(true)}
+                  >
+                    删除
+                  </Button>
                 )}
               </div>
             </form>
           </CardContent>
         </Card>
       </div>
+
+      <Dialog open={deleteOpen} onClose={() => setDeleteOpen(false)}>
+        <DialogTitle>确认删除</DialogTitle>
+        <DialogContent>
+          <DialogContentText>删除后无法恢复，确定要删除这条记录吗？</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteOpen(false)}>取消</Button>
+          <Button color="error" onClick={handleDelete}>确认删除</Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }

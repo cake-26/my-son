@@ -3,9 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { format, differenceInDays, subDays } from "date-fns";
 import { zhCN } from "date-fns/locale";
 import { Baby, Milk, Moon, Droplets, Plus, FileDown, Calendar } from "lucide-react";
+import Button from "@mui/material/Button";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
 import { db } from "@/db";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { EmptyState } from "@/components/EmptyState";
 import { downloadBackup } from "@/db/backup";
 
@@ -80,8 +81,8 @@ export default function Dashboard() {
     <div className="px-4 pt-4 pb-24 space-y-5">
       {/* Baby Card */}
       {profile ? (
-        <Link to="/profile">
-          <Card className="bg-gradient-to-r from-orange-50 to-amber-50 border-0 rounded-2xl shadow-sm">
+        <Link to="/profile" style={{ textDecoration: "none" }}>
+          <Card className="bg-gradient-to-r from-orange-50 to-amber-50 border-0 rounded-2xl shadow-sm" elevation={0}>
             <CardContent className="flex items-center gap-4 p-5">
               <div className="flex items-center justify-center h-14 w-14 rounded-full bg-white/70 shadow-sm">
                 <Baby className="h-7 w-7 text-orange-400" />
@@ -108,12 +109,17 @@ export default function Dashboard() {
           </Card>
         </Link>
       ) : (
-        <Card className="bg-gradient-to-r from-orange-50 to-amber-50 border-0 rounded-2xl shadow-sm">
+        <Card className="bg-gradient-to-r from-orange-50 to-amber-50 border-0 rounded-2xl shadow-sm" elevation={0}>
           <CardContent className="flex flex-col items-center gap-3 p-6 text-center">
             <Baby className="h-10 w-10 text-orange-300" />
             <p className="text-sm text-muted-foreground">还没有添加宝宝信息</p>
-            <Button asChild size="sm" className="rounded-full">
-              <Link to="/profile">设置宝宝信息</Link>
+            <Button
+              component={Link}
+              to="/profile"
+              size="small"
+              variant="contained"
+            >
+              设置宝宝信息
             </Button>
           </CardContent>
         </Card>
@@ -148,27 +154,27 @@ export default function Dashboard() {
         <h3 className="text-sm font-medium text-muted-foreground mb-2.5">快捷操作</h3>
         <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide">
           <Button
-            variant="outline"
-            size="sm"
-            className="rounded-full flex-shrink-0 gap-1.5"
+            variant="outlined"
+            size="small"
+            className="flex-shrink-0 gap-1.5"
             onClick={() => navigate(`/daily-log/${today}/edit`)}
           >
             <Calendar className="h-3.5 w-3.5" />
             记录今天
           </Button>
           <Button
-            variant="outline"
-            size="sm"
-            className="rounded-full flex-shrink-0 gap-1.5"
+            variant="outlined"
+            size="small"
+            className="flex-shrink-0 gap-1.5"
             onClick={() => navigate("/feed/new")}
           >
             <Plus className="h-3.5 w-3.5" />
             喂一次奶
           </Button>
           <Button
-            variant="outline"
-            size="sm"
-            className="rounded-full flex-shrink-0 gap-1.5"
+            variant="outlined"
+            size="small"
+            className="flex-shrink-0 gap-1.5"
             onClick={() => downloadBackup()}
           >
             <FileDown className="h-3.5 w-3.5" />
@@ -186,11 +192,14 @@ export default function Dashboard() {
             title="暂无记录"
             description="开始记录宝宝的每一天吧"
             action={
-              <Button asChild size="sm" className="rounded-full">
-                <Link to="/daily-log/new">
-                  <Plus className="h-4 w-4 mr-1" />
-                  新增记录
-                </Link>
+              <Button
+                component={Link}
+                to="/daily-log/new"
+                size="small"
+                variant="contained"
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                新增记录
               </Button>
             }
           />

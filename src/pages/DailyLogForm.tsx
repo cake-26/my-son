@@ -6,25 +6,19 @@ import { z } from "zod";
 import { format } from "date-fns";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
+import TextField from "@mui/material/TextField";
+import Chip from "@mui/material/Chip";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogActions from "@mui/material/DialogActions";
+import Typography from "@mui/material/Typography";
 import { db } from "@/db";
 import { SYMPTOM_OPTIONS } from "@/lib/constants";
 import { PageHeader } from "@/components/PageHeader";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 
 const schema = z.object({
   date: z.string().min(1, "请选择日期"),
@@ -43,6 +37,7 @@ export default function DailyLogForm() {
   const navigate = useNavigate();
   const isEdit = !!dateParam;
   const [symptomsTags, setSymptomsTags] = useState<string[]>([]);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   const {
     register,
@@ -109,140 +104,133 @@ export default function DailyLogForm() {
         onBack={() => navigate(-1)}
         action={
           isEdit ? (
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-destructive">
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>确认删除</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    删除后无法恢复，确定要删除这条记录吗？
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>取消</AlertDialogCancel>
-                  <AlertDialogAction onClick={onDelete}>删除</AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+            <IconButton
+              color="error"
+              onClick={() => setDeleteOpen(true)}
+            >
+              <Trash2 className="h-4 w-4" />
+            </IconButton>
           ) : undefined
         }
       />
 
+      <Dialog open={deleteOpen} onClose={() => setDeleteOpen(false)}>
+        <DialogTitle>确认删除</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            删除后无法恢复，确定要删除这条记录吗？
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteOpen(false)}>取消</Button>
+          <Button variant="contained" color="error" onClick={onDelete}>
+            删除
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       <form onSubmit={handleSubmit(onSubmit)} className="px-4 space-y-5">
         {/* Date */}
-        <div className="space-y-1.5">
-          <Label htmlFor="date">日期</Label>
-          <Input
-            id="date"
-            type="date"
-            {...register("date")}
-            disabled={isEdit}
-            className="rounded-lg"
-          />
-          {errors.date && (
-            <p className="text-xs text-destructive">{errors.date.message}</p>
-          )}
-        </div>
+        <TextField
+          label="日期"
+          type="date"
+          fullWidth
+          size="small"
+          disabled={isEdit}
+          slotProps={{ inputLabel: { shrink: true } }}
+          error={!!errors.date}
+          helperText={errors.date?.message}
+          {...register("date")}
+        />
 
         {/* Milk row */}
         <div className="grid grid-cols-2 gap-3">
-          <div className="space-y-1.5">
-            <Label htmlFor="milkTimes">喂奶次数</Label>
-            <Input
-              id="milkTimes"
-              type="number"
-              min={0}
-              {...register("milkTimes")}
-              className="rounded-lg"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="milkTotalMl">总奶量 (ml)</Label>
-            <Input
-              id="milkTotalMl"
-              type="number"
-              min={0}
-              {...register("milkTotalMl")}
-              className="rounded-lg"
-            />
-          </div>
+          <TextField
+            label="喂奶次数"
+            type="number"
+            fullWidth
+            size="small"
+            slotProps={{ htmlInput: { min: 0 } }}
+            {...register("milkTimes")}
+          />
+          <TextField
+            label="总奶量 (ml)"
+            type="number"
+            fullWidth
+            size="small"
+            slotProps={{ htmlInput: { min: 0 } }}
+            {...register("milkTotalMl")}
+          />
         </div>
 
         {/* Poop & Pee row */}
         <div className="grid grid-cols-2 gap-3">
-          <div className="space-y-1.5">
-            <Label htmlFor="poopTimes">便便次数</Label>
-            <Input
-              id="poopTimes"
-              type="number"
-              min={0}
-              {...register("poopTimes")}
-              className="rounded-lg"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="peeTimes">尿尿次数</Label>
-            <Input
-              id="peeTimes"
-              type="number"
-              min={0}
-              {...register("peeTimes")}
-              className="rounded-lg"
-            />
-          </div>
-        </div>
-
-        {/* Sleep */}
-        <div className="space-y-1.5">
-          <Label htmlFor="sleepHours">睡眠时长 (小时)</Label>
-          <Input
-            id="sleepHours"
+          <TextField
+            label="便便次数"
             type="number"
-            min={0}
-            step={0.5}
-            {...register("sleepHours")}
-            className="rounded-lg"
+            fullWidth
+            size="small"
+            slotProps={{ htmlInput: { min: 0 } }}
+            {...register("poopTimes")}
+          />
+          <TextField
+            label="尿尿次数"
+            type="number"
+            fullWidth
+            size="small"
+            slotProps={{ htmlInput: { min: 0 } }}
+            {...register("peeTimes")}
           />
         </div>
 
+        {/* Sleep */}
+        <TextField
+          label="睡眠时长 (小时)"
+          type="number"
+          fullWidth
+          size="small"
+          slotProps={{ htmlInput: { min: 0, step: 0.5 } }}
+          {...register("sleepHours")}
+        />
+
         {/* Symptoms */}
         <div className="space-y-2">
-          <Label>症状标记</Label>
+          <Typography variant="body2" className="font-medium">
+            症状标记
+          </Typography>
           <div className="flex flex-wrap gap-2">
             {SYMPTOM_OPTIONS.map((opt) => (
-              <Badge
+              <Chip
                 key={opt}
-                variant={symptomsTags.includes(opt) ? "default" : "outline"}
-                className="cursor-pointer select-none rounded-full px-3 py-1 text-xs transition-colors"
+                label={opt}
+                size="small"
+                variant={symptomsTags.includes(opt) ? "filled" : "outlined"}
+                color={symptomsTags.includes(opt) ? "primary" : "default"}
                 onClick={() => toggleSymptom(opt)}
-              >
-                {opt}
-              </Badge>
+                className="cursor-pointer select-none"
+              />
             ))}
           </div>
         </div>
 
         {/* Note */}
-        <div className="space-y-1.5">
-          <Label htmlFor="note">备注</Label>
-          <Textarea
-            id="note"
-            rows={3}
-            {...register("note")}
-            placeholder="今天的特别记录…"
-            className="rounded-lg resize-none"
-          />
-        </div>
+        <TextField
+          label="备注"
+          multiline
+          rows={3}
+          fullWidth
+          size="small"
+          placeholder="今天的特别记录…"
+          {...register("note")}
+        />
 
         {/* Submit */}
         <Button
           type="submit"
+          variant="contained"
           disabled={isSubmitting}
-          className="w-full rounded-xl h-11"
+          fullWidth
+          className="h-11"
         >
           {isSubmitting ? "保存中…" : "保存"}
         </Button>
