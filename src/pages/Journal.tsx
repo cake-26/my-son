@@ -4,10 +4,14 @@ import { format } from "date-fns";
 import { Plus, BookOpen, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { db } from "@/db";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
+import {
+  Button,
+  Card,
+  CardContent,
+  Chip,
+  TextField,
+  InputAdornment,
+} from "@mui/material";
 import { PageHeader } from "@/components/PageHeader";
 import { EmptyState } from "@/components/EmptyState";
 
@@ -45,49 +49,44 @@ export default function Journal() {
       <PageHeader
         title="育儿心得"
         action={
-          <Button asChild size="sm" className="rounded-full gap-1">
-            <Link to="/journal/new">
-              <Plus className="h-4 w-4" />
-              添加
-            </Link>
+          <Button component={Link} to="/journal/new" size="small" variant="contained" className="rounded-full gap-1">
+            <Plus className="h-4 w-4" />
+            添加
           </Button>
         }
       />
 
       <div className="px-4 space-y-3">
-        {/* Search */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="搜索标题..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-9"
-          />
-        </div>
+        <TextField
+          placeholder="搜索标题..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          fullWidth
+          size="small"
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Search className="h-4 w-4 text-muted-foreground" />
+              </InputAdornment>
+            ),
+          }}
+        />
 
-        {/* Tag Filters */}
         {allTags.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
             {allTags.map((tag) => (
-              <button
+              <Chip
                 key={tag}
-                type="button"
+                label={tag}
+                size="small"
+                variant={activeTag === tag ? "filled" : "outlined"}
                 onClick={() => setActiveTag(activeTag === tag ? null : tag)}
-                className="inline-block"
-              >
-                <Badge
-                  variant={activeTag === tag ? "default" : "outline"}
-                  className="cursor-pointer text-xs"
-                >
-                  {tag}
-                </Badge>
-              </button>
+                className="cursor-pointer"
+              />
             ))}
           </div>
         )}
 
-        {/* Entries */}
         {filtered === undefined ? null : filtered.length === 0 ? (
           entries?.length === 0 ? (
             <EmptyState
@@ -95,11 +94,9 @@ export default function Journal() {
               title="还没有育儿心得"
               description="记录育儿路上的思考与成长"
               action={
-                <Button asChild size="sm" className="rounded-full">
-                  <Link to="/journal/new">
-                    <Plus className="h-4 w-4 mr-1" />
-                    写心得
-                  </Link>
+                <Button component={Link} to="/journal/new" size="small" variant="contained" className="rounded-full">
+                  <Plus className="h-4 w-4 mr-1" />
+                  写心得
                 </Button>
               }
             />
@@ -136,9 +133,7 @@ export default function Journal() {
                   {e.tags.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-2">
                       {e.tags.map((tag) => (
-                        <Badge key={tag} variant="secondary" className="text-xs px-2 py-0">
-                          {tag}
-                        </Badge>
+                        <Chip key={tag} label={tag} size="small" />
                       ))}
                     </div>
                   )}

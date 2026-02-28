@@ -1,3 +1,4 @@
+import { Typography, IconButton, Box } from "@mui/material";
 import { ChevronLeft } from "lucide-react";
 
 interface PageHeaderProps {
@@ -9,27 +10,31 @@ interface PageHeaderProps {
 
 export function PageHeader({ title, subtitle, action, onBack }: PageHeaderProps) {
   return (
-    <header className="sticky top-0 z-10 bg-background/80 backdrop-blur px-4 py-3">
+    <Box
+      component="header"
+      className="sticky top-0 z-10 px-4 py-3"
+      sx={{ bgcolor: "rgba(255,247,237,0.8)", backdropFilter: "blur(8px)" }}
+    >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1 min-w-0">
           {onBack && (
-            <button
-              type="button"
-              onClick={onBack}
-              className="-ml-2 p-1.5 rounded-lg text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </button>
+            <IconButton size="small" onClick={onBack} sx={{ ml: -1 }}>
+              <ChevronLeft size={20} />
+            </IconButton>
           )}
           <div className="min-w-0">
-            <h1 className="text-lg font-semibold leading-tight truncate">{title}</h1>
+            <Typography variant="h6" fontWeight={600} noWrap sx={{ lineHeight: 1.3, fontSize: "1.1rem" }}>
+              {title}
+            </Typography>
             {subtitle && (
-              <p className="text-xs text-muted-foreground truncate">{subtitle}</p>
+              <Typography variant="caption" color="text.secondary" noWrap>
+                {subtitle}
+              </Typography>
             )}
           </div>
         </div>
         {action && <div className="flex-shrink-0 ml-3">{action}</div>}
       </div>
-    </header>
+    </Box>
   );
 }

@@ -3,9 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { Plus, Star } from "lucide-react";
 import { db } from "@/db";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Button, Card, CardContent, Chip } from "@mui/material";
 import { PageHeader } from "@/components/PageHeader";
 import { EmptyState } from "@/components/EmptyState";
 
@@ -20,11 +18,9 @@ export default function Milestones() {
       <PageHeader
         title="里程碑"
         action={
-          <Button asChild size="sm" className="rounded-full gap-1">
-            <Link to="/milestones/new">
-              <Plus className="h-4 w-4" />
-              添加
-            </Link>
+          <Button component={Link} to="/milestones/new" size="small" variant="contained" className="rounded-full gap-1">
+            <Plus className="h-4 w-4" />
+            添加
           </Button>
         }
       />
@@ -36,11 +32,9 @@ export default function Milestones() {
             title="还没有里程碑"
             description="记录宝宝的每一个第一次"
             action={
-              <Button asChild size="sm" className="rounded-full">
-                <Link to="/milestones/new">
-                  <Plus className="h-4 w-4 mr-1" />
-                  新增记录
-                </Link>
+              <Button component={Link} to="/milestones/new" size="small" variant="contained" className="rounded-full">
+                <Plus className="h-4 w-4 mr-1" />
+                新增记录
               </Button>
             }
           />
@@ -64,9 +58,7 @@ export default function Milestones() {
                 {r.tags.length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-2">
                     {r.tags.map((tag) => (
-                      <Badge key={tag} variant="secondary" className="text-xs px-2 py-0">
-                        {tag}
-                      </Badge>
+                      <Chip key={tag} label={tag} size="small" />
                     ))}
                   </div>
                 )}

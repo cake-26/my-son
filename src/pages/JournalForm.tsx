@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -8,30 +8,20 @@ import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { db } from "@/db";
 import { MOOD_OPTIONS } from "@/lib/constants";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  Button,
+  Card,
+  CardContent,
+  TextField,
+  MenuItem,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+} from "@mui/material";
 import { PageHeader } from "@/components/PageHeader";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 
 const schema = z.object({
   datetime: z.string().min(1, "请选择时间"),
@@ -50,6 +40,7 @@ export default function JournalForm() {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEdit = !!id;
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   const {
     register,
@@ -131,124 +122,118 @@ export default function JournalForm() {
       <form onSubmit={handleSubmit(onSubmit)} className="px-4 space-y-4">
         <Card className="rounded-xl">
           <CardContent className="p-4 space-y-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="datetime">时间 *</Label>
-              <Input id="datetime" type="datetime-local" {...register("datetime")} />
-              {errors.datetime && (
-                <p className="text-xs text-destructive">{errors.datetime.message}</p>
+            <TextField
+              label="时间 *"
+              type="datetime-local"
+              fullWidth
+              {...register("datetime")}
+              error={!!errors.datetime}
+              helperText={errors.datetime?.message}
+              InputLabelProps={{ shrink: true }}
+            />
+
+            <TextField
+              label="标题 *"
+              fullWidth
+              placeholder="今天的主题..."
+              {...register("title")}
+              error={!!errors.title}
+              helperText={errors.title?.message}
+            />
+
+            <TextField
+              label="标签（逗号分隔）"
+              fullWidth
+              placeholder="例如 睡眠, 喂养, 情绪"
+              {...register("tagsStr")}
+            />
+
+            <Controller
+              name="mood"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  select
+                  label="心情"
+                  fullWidth
+                  value={field.value}
+                  onChange={field.onChange}
+                >
+                  <MenuItem value="">
+                    <em>无</em>
+                  </MenuItem>
+                  {MOOD_OPTIONS.map((m) => (
+                    <MenuItem key={m} value={m}>
+                      {m}
+                    </MenuItem>
+                  ))}
+                </TextField>
               )}
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="title">标题 *</Label>
-              <Input id="title" placeholder="今天的主题..." {...register("title")} />
-              {errors.title && (
-                <p className="text-xs text-destructive">{errors.title.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="tagsStr">标签（逗号分隔）</Label>
-              <Input
-                id="tagsStr"
-                placeholder="例如 睡眠, 喂养, 情绪"
-                {...register("tagsStr")}
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="mood">心情</Label>
-              <Controller
-                name="mood"
-                control={control}
-                render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="选择心情（可选）" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {MOOD_OPTIONS.map((m) => (
-                        <SelectItem key={m} value={m}>
-                          {m}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-            </div>
+            />
           </CardContent>
         </Card>
 
         <Card className="rounded-xl">
           <CardContent className="p-4 space-y-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="context">触发场景 — 发生了什么</Label>
-              <Textarea
-                id="context"
-                placeholder="描述发生了什么事情..."
-                rows={3}
-                {...register("context")}
-              />
-            </div>
+            <TextField
+              label="触发场景 — 发生了什么"
+              multiline
+              rows={3}
+              fullWidth
+              placeholder="描述发生了什么事情..."
+              {...register("context")}
+            />
 
-            <div className="space-y-1.5">
-              <Label htmlFor="action">我做了什么</Label>
-              <Textarea
-                id="action"
-                placeholder="我的应对方式..."
-                rows={3}
-                {...register("action")}
-              />
-            </div>
+            <TextField
+              label="我做了什么"
+              multiline
+              rows={3}
+              fullWidth
+              placeholder="我的应对方式..."
+              {...register("action")}
+            />
 
-            <div className="space-y-1.5">
-              <Label htmlFor="result">结果如何</Label>
-              <Textarea
-                id="result"
-                placeholder="最终结果..."
-                rows={3}
-                {...register("result")}
-              />
-            </div>
+            <TextField
+              label="结果如何"
+              multiline
+              rows={3}
+              fullWidth
+              placeholder="最终结果..."
+              {...register("result")}
+            />
 
-            <div className="space-y-1.5">
-              <Label htmlFor="next">下次怎么做</Label>
-              <Textarea
-                id="next"
-                placeholder="下次的改进计划..."
-                rows={3}
-                {...register("next")}
-              />
-            </div>
+            <TextField
+              label="下次怎么做"
+              multiline
+              rows={3}
+              fullWidth
+              placeholder="下次的改进计划..."
+              {...register("next")}
+            />
           </CardContent>
         </Card>
 
         <div className="flex gap-3">
           {isEdit && (
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button type="button" variant="outline" size="icon" className="flex-shrink-0">
-                  <Trash2 className="h-4 w-4 text-destructive" />
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>确认删除</AlertDialogTitle>
-                  <AlertDialogDescription>
+            <>
+              <IconButton onClick={() => setDeleteOpen(true)} className="flex-shrink-0">
+                <Trash2 className="h-4 w-4 text-destructive" />
+              </IconButton>
+              <Dialog open={deleteOpen} onClose={() => setDeleteOpen(false)}>
+                <DialogTitle>确认删除</DialogTitle>
+                <DialogContent>
+                  <DialogContentText>
                     删除后无法恢复，确定要删除这篇心得吗？
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>取消</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleDelete}>
-                    删除
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+                  </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                  <Button onClick={() => setDeleteOpen(false)}>取消</Button>
+                  <Button color="error" onClick={handleDelete}>删除</Button>
+                </DialogActions>
+              </Dialog>
+            </>
           )}
-          <Button type="submit" className="flex-1 rounded-full" disabled={isSubmitting}>
+          <Button type="submit" variant="contained" className="flex-1 rounded-full" disabled={isSubmitting}>
             {isEdit ? "更新" : "保存"}
           </Button>
         </div>

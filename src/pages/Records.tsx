@@ -2,10 +2,13 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { format } from "date-fns";
 import { Milk, Moon, Droplets, Plus, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import Button from "@mui/material/Button";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
 import { db } from "@/db";
 import { PageHeader } from "@/components/PageHeader";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 
 const today = () => format(new Date(), "yyyy-MM-dd");
 
@@ -56,7 +59,7 @@ export default function Records() {
       <PageHeader
         title="记录"
         action={
-          <Button variant="ghost" size="sm" onClick={() => navigate("/daily-log")}>
+          <Button variant="text" size="small" onClick={() => navigate("/daily-log")}>
             今日汇总 <ChevronRight className="h-4 w-4 ml-1" />
           </Button>
         }
@@ -65,18 +68,20 @@ export default function Records() {
       <div className="flex flex-col gap-4 px-4 mt-2">
         {/* 喂养 */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <Box className="flex flex-row items-center justify-between px-4 pt-4 pb-2">
             <div className="flex items-center gap-2">
               <Milk className="h-5 w-5 text-orange-500" />
-              <CardTitle className="text-base">喂养记录</CardTitle>
+              <Typography variant="subtitle1" className="font-semibold">
+                喂养记录
+              </Typography>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">今日 {feedCount} 次</span>
-              <Button size="sm" onClick={() => navigate("/feed/new")}>
+              <Button size="small" variant="contained" onClick={() => navigate("/feed/new")}>
                 <Plus className="h-4 w-4 mr-1" /> 添加
               </Button>
             </div>
-          </CardHeader>
+          </Box>
           <CardContent>
             {recentFeeds.length === 0 ? (
               <p className="text-sm text-muted-foreground py-2">暂无记录</p>
@@ -110,18 +115,20 @@ export default function Records() {
 
         {/* 睡眠 */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <Box className="flex flex-row items-center justify-between px-4 pt-4 pb-2">
             <div className="flex items-center gap-2">
               <Moon className="h-5 w-5 text-indigo-500" />
-              <CardTitle className="text-base">睡眠记录</CardTitle>
+              <Typography variant="subtitle1" className="font-semibold">
+                睡眠记录
+              </Typography>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">今日 {sleepCount} 次</span>
-              <Button size="sm" onClick={() => navigate("/sleep/new")}>
+              <Button size="small" variant="contained" onClick={() => navigate("/sleep/new")}>
                 <Plus className="h-4 w-4 mr-1" /> 添加
               </Button>
             </div>
-          </CardHeader>
+          </Box>
           <CardContent>
             {recentSleeps.length === 0 ? (
               <p className="text-sm text-muted-foreground py-2">暂无记录</p>
@@ -154,18 +161,20 @@ export default function Records() {
 
         {/* 排泄 */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <Box className="flex flex-row items-center justify-between px-4 pt-4 pb-2">
             <div className="flex items-center gap-2">
               <Droplets className="h-5 w-5 text-sky-500" />
-              <CardTitle className="text-base">排泄记录</CardTitle>
+              <Typography variant="subtitle1" className="font-semibold">
+                排泄记录
+              </Typography>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">今日 {diaperCount} 次</span>
-              <Button size="sm" onClick={() => navigate("/diaper/new")}>
+              <Button size="small" variant="contained" onClick={() => navigate("/diaper/new")}>
                 <Plus className="h-4 w-4 mr-1" /> 添加
               </Button>
             </div>
-          </CardHeader>
+          </Box>
           <CardContent>
             {recentDiapers.length === 0 ? (
               <p className="text-sm text-muted-foreground py-2">暂无记录</p>

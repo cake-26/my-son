@@ -2,12 +2,13 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { useNavigate, Link } from "react-router-dom";
 import { format } from "date-fns";
 import { Calendar, Milk, Baby, Droplets, Moon, Plus } from "lucide-react";
+import Button from "@mui/material/Button";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import Chip from "@mui/material/Chip";
 import { db } from "@/db";
 import { PageHeader } from "@/components/PageHeader";
 import { EmptyState } from "@/components/EmptyState";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 
 const DAY_LABELS = ["日", "一", "二", "三", "四", "五", "六"] as const;
 
@@ -22,11 +23,15 @@ export default function DailyLog() {
       <PageHeader
         title="每日记录"
         action={
-          <Button asChild size="sm" className="rounded-full gap-1">
-            <Link to="/daily-log/new">
-              <Plus className="h-4 w-4" />
-              新增
-            </Link>
+          <Button
+            component={Link}
+            to="/daily-log/new"
+            size="small"
+            variant="contained"
+            className="gap-1"
+          >
+            <Plus className="h-4 w-4" />
+            新增
           </Button>
         }
       />
@@ -38,11 +43,14 @@ export default function DailyLog() {
             title="暂无每日记录"
             description="每天记录一次，跟踪宝宝的成长"
             action={
-              <Button asChild size="sm" className="rounded-full">
-                <Link to="/daily-log/new">
-                  <Plus className="h-4 w-4 mr-1" />
-                  新增记录
-                </Link>
+              <Button
+                component={Link}
+                to="/daily-log/new"
+                size="small"
+                variant="contained"
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                新增记录
               </Button>
             }
           />
@@ -87,13 +95,12 @@ export default function DailyLog() {
                   {log.symptomsTags.length > 0 && (
                     <div className="flex flex-wrap gap-1">
                       {log.symptomsTags.map((tag) => (
-                        <Badge
+                        <Chip
                           key={tag}
-                          variant="secondary"
-                          className="text-[10px] px-1.5 py-0 rounded-full"
-                        >
-                          {tag}
-                        </Badge>
+                          label={tag}
+                          size="small"
+                          sx={{ fontSize: "10px", height: 20 }}
+                        />
                       ))}
                     </div>
                   )}
