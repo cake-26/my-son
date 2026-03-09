@@ -19,27 +19,48 @@
 
 - **宝宝卡片**: 姓名、昵称、出生日期、出生第 X 天。未设置时展示引导卡片
 - **今日概览**: 2×2 网格统计卡 — 奶量(ml)、喂奶(次)、便便(次)、睡眠(小时)
-- **快捷操作**: 横向滚动按钮 — 记录今天、喂一次奶、导出备份
+- **快捷操作**: 横向滚动按钮 — 记录今天、记录昨天、喂一次奶、导出备份
 - **最近 7 天**: 日志卡片列表，点击进入编辑
 
 ### 2. 每日汇总 DailyLog (`/daily-log`)
 
-以日期为主键的汇总视图，字段包括：
+以日期为主键的汇总视图。分为两类字段：
+
+**自动汇总字段**（由事件记录自动计算，`syncDailyLog` 触发）：
 
 | 字段 | 类型 | 说明 |
 |------|------|------|
 | date | YYYY-MM-DD | 主键 |
-| milkTimes | number | 喂奶次数 |
-| milkTotalMl | number | 总奶量 ml |
-| poopTimes | number | 便便次数 |
-| peeTimes | number | 尿尿次数 |
-| sleepHours | number | 睡眠小时 |
-| note | string | 备注 |
-| symptomsTags | string[] | 症状标记 |
+| milkTimes | number | 喂奶总次数（来自 FeedEvent） |
+| milkTotalMl | number | 总奶量 ml（来自 FeedEvent） |
+| poopTimes | number | 便便次数（来自 DiaperEvent） |
+| peeTimes | number | 尿尿次数（来自 DiaperEvent） |
+| sleepHours | number | 睡眠小时（来自 SleepEvent） |
 
-**自动汇总**: 喂养/睡眠/排泄事件保存时自动计算并更新对应日期的 DailyLog。
+**手动填写字段**（对应纸质「宝宝每日基本情况汇总」表单）：
+
+| 字段 | 说明 |
+|------|------|
+| tempMorning / tempAfternoon | 体温上午/下午 (°C) |
+| jaundiceAM/PMForehead/Face/Chest | 黄疸早/晚 × 额头/脸/胸 (mg/dL)，共 6 个字段 |
+| bath | 沐浴方式：游泳 / 洗澡 / 未洗 |
+| weightKg | 当日体重 (kg) |
+| sleepQuality | 睡眠质量：佳 / 一般 |
+| formulaMl / formulaTimes | 奶粉量(ml) / 次数 |
+| breastMilkMl / breastMilkTimes | 母乳量(ml) / 次数 |
+| symptomsTags | 症状标记（多选） |
+| note | 备注 |
+
+**列表展示逻辑**：优先展示手填的 formulaMl/breastMilkMl，无手填数据时回退显示事件汇总的 milkTotalMl/milkTimes。
 
 **症状标记选项**: 吐奶、胀气、红屁股、鼻塞、黄疸观察、发热、湿疹、腹泻
+
+#### 2.1 每日总览 DailyOverview (`/daily-log/:date`)
+
+点击列表中某天进入只读总览页，展示：
+- 所有手填汇总数据（体温、黄疸、沐浴、体重、睡眠、喂养、排泄）
+- 当日喂养/排泄/睡眠事件明细列表
+- 右上角「编辑」按钮跳转到 `/daily-log/:date/edit`
 
 ### 3. 事件级记录 (`/records`)
 
@@ -115,7 +136,7 @@
 ### 9. 个人中心 Profile (`/profile`)
 
 - 宝宝信息管理（姓名、昵称、出生日期/时间、性别）
-- 各功能模块导航入口（7 个入口卡片）
+- 各功能模块导航入口（8 个入口：每日记录、成长记录、疫苗记录、里程碑、生病用药、育儿心得、备份管理）
 
 ### 10. 备份管理 Backup (`/backup`)
 

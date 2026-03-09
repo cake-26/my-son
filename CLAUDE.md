@@ -31,10 +31,12 @@ src/
 │   ├── TabBar.tsx              # MUI BottomNavigation (4 tab)
 │   ├── PageHeader.tsx          # 页面标题栏
 │   └── EmptyState.tsx          # 空状态占位
-└── pages/                      # 21 个页面 (列表 + 表单)
+└── pages/                      # 23 个页面 (列表 + 表单 + 总览)
     ├── Dashboard.tsx            # 首页仪表盘
     ├── Records.tsx              # 事件记录总览
-    ├── DailyLog.tsx / DailyLogForm.tsx
+    ├── DailyLog.tsx             # 每日记录列表
+    ├── DailyLogForm.tsx         # 每日记录表单（体温/黄疸/沐浴/喂养/排泄等）
+    ├── DailyOverview.tsx        # 每日总览只读页（/daily-log/:date）
     ├── FeedForm.tsx / SleepForm.tsx / DiaperForm.tsx
     ├── Growth.tsx / GrowthForm.tsx
     ├── Vaccines.tsx / VaccineForm.tsx
@@ -86,6 +88,20 @@ wrangler pages deploy dist --project-name my-son --commit-message "deploy"
 | journalEntries | ++id, datetime | 育儿心得 |
 | illnessRecords | ++id, date | 生病用药 (v2) |
 
+### DailyLog 扩展字段（手动填写）
+
+除自动汇总字段外，DailyLog 还包含手填可选字段：
+
+| 字段 | 说明 |
+|------|------|
+| tempMorning / tempAfternoon | 体温上午/下午 (°C) |
+| jaundiceAM/PMForehead/Face/Chest | 黄疸早晚额头/脸/胸 (mg/dL) |
+| bath | 沐浴方式：游泳/洗澡/'' |
+| weightKg | 当日体重 (kg) |
+| sleepQuality | 睡眠质量：佳/一般/'' |
+| formulaMl / formulaTimes | 奶粉量(ml) / 次数 |
+| breastMilkMl / breastMilkTimes | 母乳量(ml) / 次数 |
+
 ## 关键机制
 
 ### 事件→每日汇总同步
@@ -96,8 +112,7 @@ JSON 文件 `baby-log-YYYYMMDD-HHmm.json`，含 `schemaVersion` 和 `exportedAt`
 
 ## 已知问题
 
-- `backup.ts` 未包含 `illnessRecords` 表的导出/导入，需要补充
-- `SCHEMA_VERSION` 常量为 1，但数据库已升级到 version(2)
+暂无
 
 ## 新增页面模式
 
