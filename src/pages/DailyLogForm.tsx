@@ -206,6 +206,7 @@ export default function DailyLogForm() {
               helperText={errors.date?.message}
               {...register("date")}
             />
+
           </CardContent>
         </Card>
 
@@ -222,7 +223,7 @@ export default function DailyLogForm() {
                 fullWidth
                 size="small"
                 placeholder="36.5"
-                slotProps={{ htmlInput: { step: 0.1 } }}
+                slotProps={{ htmlInput: { step: 0.1 }, inputLabel: { shrink: true } }}
                 {...register("tempMorning")}
               />
               <TextField
@@ -231,7 +232,7 @@ export default function DailyLogForm() {
                 fullWidth
                 size="small"
                 placeholder="36.5"
-                slotProps={{ htmlInput: { step: 0.1 } }}
+                slotProps={{ htmlInput: { step: 0.1 }, inputLabel: { shrink: true } }}
                 {...register("tempAfternoon")}
               />
             </div>
@@ -256,7 +257,7 @@ export default function DailyLogForm() {
                   fullWidth
                   slotProps={{
                     htmlInput: { step: 0.1 },
-                    inputLabel: { style: { fontSize: 12 } },
+                    inputLabel: { style: { fontSize: 12 }, shrink: true },
                   }}
                   {...register("jaundiceAMForehead")}
                 />
@@ -267,7 +268,7 @@ export default function DailyLogForm() {
                   fullWidth
                   slotProps={{
                     htmlInput: { step: 0.1 },
-                    inputLabel: { style: { fontSize: 12 } },
+                    inputLabel: { style: { fontSize: 12 }, shrink: true },
                   }}
                   {...register("jaundiceAMFace")}
                 />
@@ -278,7 +279,7 @@ export default function DailyLogForm() {
                   fullWidth
                   slotProps={{
                     htmlInput: { step: 0.1 },
-                    inputLabel: { style: { fontSize: 12 } },
+                    inputLabel: { style: { fontSize: 12 }, shrink: true },
                   }}
                   {...register("jaundiceAMChest")}
                 />
@@ -296,7 +297,7 @@ export default function DailyLogForm() {
                   fullWidth
                   slotProps={{
                     htmlInput: { step: 0.1 },
-                    inputLabel: { style: { fontSize: 12 } },
+                    inputLabel: { style: { fontSize: 12 }, shrink: true },
                   }}
                   {...register("jaundicePMForehead")}
                 />
@@ -307,7 +308,7 @@ export default function DailyLogForm() {
                   fullWidth
                   slotProps={{
                     htmlInput: { step: 0.1 },
-                    inputLabel: { style: { fontSize: 12 } },
+                    inputLabel: { style: { fontSize: 12 }, shrink: true },
                   }}
                   {...register("jaundicePMFace")}
                 />
@@ -318,7 +319,7 @@ export default function DailyLogForm() {
                   fullWidth
                   slotProps={{
                     htmlInput: { step: 0.1 },
-                    inputLabel: { style: { fontSize: 12 } },
+                    inputLabel: { style: { fontSize: 12 }, shrink: true },
                   }}
                   {...register("jaundicePMChest")}
                 />
@@ -360,7 +361,7 @@ export default function DailyLogForm() {
               type="number"
               fullWidth
               size="small"
-              slotProps={{ htmlInput: { step: 0.01 } }}
+              slotProps={{ htmlInput: { step: 0.01 }, inputLabel: { shrink: true } }}
               {...register("weightKg")}
             />
           </CardContent>
@@ -398,7 +399,7 @@ export default function DailyLogForm() {
               type="number"
               fullWidth
               size="small"
-              slotProps={{ htmlInput: { min: 0, step: 0.5 } }}
+              slotProps={{ htmlInput: { min: 0, step: 0.5 }, inputLabel: { shrink: true } }}
               {...register("sleepHours")}
             />
           </CardContent>
@@ -416,7 +417,7 @@ export default function DailyLogForm() {
                 type="number"
                 fullWidth
                 size="small"
-                slotProps={{ htmlInput: { min: 0 } }}
+                slotProps={{ htmlInput: { min: 0 }, inputLabel: { shrink: true } }}
                 {...register("formulaMl")}
               />
               <TextField
@@ -424,7 +425,7 @@ export default function DailyLogForm() {
                 type="number"
                 fullWidth
                 size="small"
-                slotProps={{ htmlInput: { min: 0 } }}
+                slotProps={{ htmlInput: { min: 0 }, inputLabel: { shrink: true } }}
                 {...register("formulaTimes")}
               />
               <TextField
@@ -432,7 +433,7 @@ export default function DailyLogForm() {
                 type="number"
                 fullWidth
                 size="small"
-                slotProps={{ htmlInput: { min: 0 } }}
+                slotProps={{ htmlInput: { min: 0 }, inputLabel: { shrink: true } }}
                 {...register("breastMilkMl")}
               />
               <TextField
@@ -440,7 +441,7 @@ export default function DailyLogForm() {
                 type="number"
                 fullWidth
                 size="small"
-                slotProps={{ htmlInput: { min: 0 } }}
+                slotProps={{ htmlInput: { min: 0 }, inputLabel: { shrink: true } }}
                 {...register("breastMilkTimes")}
               />
             </div>
@@ -464,7 +465,7 @@ export default function DailyLogForm() {
                 type="number"
                 fullWidth
                 size="small"
-                slotProps={{ htmlInput: { min: 0 } }}
+                slotProps={{ htmlInput: { min: 0 }, inputLabel: { shrink: true } }}
                 {...register("poopTimes")}
               />
               <TextField
@@ -472,7 +473,7 @@ export default function DailyLogForm() {
                 type="number"
                 fullWidth
                 size="small"
-                slotProps={{ htmlInput: { min: 0 } }}
+                slotProps={{ htmlInput: { min: 0 }, inputLabel: { shrink: true } }}
                 {...register("peeTimes")}
               />
             </div>
@@ -519,6 +520,7 @@ export default function DailyLogForm() {
               fullWidth
               size="small"
               placeholder="今天的特别记录…"
+              slotProps={{ inputLabel: { shrink: true } }}
               {...register("note")}
             />
           </CardContent>

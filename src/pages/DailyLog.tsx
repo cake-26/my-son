@@ -74,14 +74,33 @@ export default function DailyLog() {
                   </div>
 
                   <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <Milk className="h-3.5 w-3.5 text-orange-400" />
-                      {log.milkTotalMl} ml
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Baby className="h-3.5 w-3.5 text-green-400" />
-                      喂奶 {log.milkTimes} 次
-                    </span>
+                    {(log.formulaMl != null || log.breastMilkMl != null) ? (
+                      <>
+                        {log.formulaMl != null && (
+                          <span className="flex items-center gap-1">
+                            <Milk className="h-3.5 w-3.5 text-orange-400" />
+                            奶粉 {log.formulaMl}ml{log.formulaTimes != null ? ` / ${log.formulaTimes}次` : ""}
+                          </span>
+                        )}
+                        {log.breastMilkMl != null && (
+                          <span className="flex items-center gap-1">
+                            <Baby className="h-3.5 w-3.5 text-green-400" />
+                            母乳 {log.breastMilkMl}ml{log.breastMilkTimes != null ? ` / ${log.breastMilkTimes}次` : ""}
+                          </span>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        <span className="flex items-center gap-1">
+                          <Milk className="h-3.5 w-3.5 text-orange-400" />
+                          {log.milkTotalMl} ml
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Baby className="h-3.5 w-3.5 text-green-400" />
+                          喂奶 {log.milkTimes} 次
+                        </span>
+                      </>
+                    )}
                     <span className="flex items-center gap-1">
                       <Droplets className="h-3.5 w-3.5 text-blue-400" />
                       便 {log.poopTimes} / 尿 {log.peeTimes}
