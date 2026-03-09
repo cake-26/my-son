@@ -34,6 +34,7 @@ export async function syncDailyLog(date: string): Promise<void> {
   const existing = await db.dailyLogs.get(date);
 
   await db.dailyLogs.put({
+    ...(existing ?? {}),
     date,
     milkTimes,
     milkTotalMl,

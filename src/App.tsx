@@ -21,6 +21,7 @@ const ProfilePage = lazy(() => import("@/pages/Profile"));
 const Backup = lazy(() => import("@/pages/Backup"));
 const Illness = lazy(() => import("@/pages/Illness"));
 const IllnessForm = lazy(() => import("@/pages/IllnessForm"));
+const DailyOverview = lazy(() => import("@/pages/DailyOverview"));
 
 function Loading() {
   return (
@@ -40,6 +41,7 @@ export default function App() {
             <Route path="records" element={<Records />} />
             <Route path="daily-log" element={<DailyLog />} />
             <Route path="daily-log/new" element={<DailyLogForm />} />
+            <Route path="daily-log/:date" element={<DailyOverview />} />
             <Route path="daily-log/:date/edit" element={<DailyLogForm />} />
             <Route path="feed/new" element={<FeedForm />} />
             <Route path="feed/:id/edit" element={<FeedForm />} />

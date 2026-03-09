@@ -61,7 +61,7 @@ export default function DailyLog() {
               <Card
                 key={log.date}
                 className="rounded-xl border shadow-sm cursor-pointer hover:bg-accent/50 transition-colors"
-                onClick={() => navigate(`/daily-log/${log.date}/edit`)}
+                onClick={() => navigate(`/daily-log/${log.date}`)}
               >
                 <CardContent className="p-4 space-y-2.5">
                   <div className="flex items-center justify-between">

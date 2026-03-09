@@ -19,6 +19,27 @@ export interface DailyLog {
   sleepHours: number;
   note: string;
   symptomsTags: string[];
+  // 体温
+  tempMorning?: number;
+  tempAfternoon?: number;
+  // 黄疸 mg/dL
+  jaundiceAMForehead?: number;
+  jaundiceAMFace?: number;
+  jaundiceAMChest?: number;
+  jaundicePMForehead?: number;
+  jaundicePMFace?: number;
+  jaundicePMChest?: number;
+  // 沐浴
+  bath?: '游泳' | '洗澡' | '';
+  // 体重
+  weightKg?: number;
+  // 睡眠质量
+  sleepQuality?: '佳' | '一般' | '';
+  // 喂养详情
+  formulaMl?: number;
+  breastMilkMl?: number;
+  formulaTimes?: number;
+  breastMilkTimes?: number;
 }
 
 export interface FeedEvent {

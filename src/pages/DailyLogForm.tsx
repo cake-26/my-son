@@ -10,6 +10,8 @@ import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import TextField from "@mui/material/TextField";
 import Chip from "@mui/material/Chip";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
@@ -20,13 +22,29 @@ import { db } from "@/db";
 import { SYMPTOM_OPTIONS } from "@/lib/constants";
 import { PageHeader } from "@/components/PageHeader";
 
+const optNum = z.preprocess(
+  (v) => (v === "" || v == null ? undefined : Number(v)),
+  z.number().optional(),
+);
+
 const schema = z.object({
   date: z.string().min(1, "请选择日期"),
-  milkTimes: z.coerce.number().min(0),
-  milkTotalMl: z.coerce.number().min(0),
+  tempMorning: optNum,
+  tempAfternoon: optNum,
+  jaundiceAMForehead: optNum,
+  jaundiceAMFace: optNum,
+  jaundiceAMChest: optNum,
+  jaundicePMForehead: optNum,
+  jaundicePMFace: optNum,
+  jaundicePMChest: optNum,
+  weightKg: optNum,
+  sleepHours: z.coerce.number().min(0),
+  formulaMl: optNum,
+  breastMilkMl: optNum,
+  formulaTimes: optNum,
+  breastMilkTimes: optNum,
   poopTimes: z.coerce.number().min(0),
   peeTimes: z.coerce.number().min(0),
-  sleepHours: z.coerce.number().min(0),
   note: z.string(),
 });
 
@@ -37,7 +55,13 @@ export default function DailyLogForm() {
   const navigate = useNavigate();
   const isEdit = !!dateParam;
   const [symptomsTags, setSymptomsTags] = useState<string[]>([]);
+  const [bath, setBath] = useState<"游泳" | "洗澡" | "">("");
+  const [sleepQuality, setSleepQuality] = useState<"佳" | "一般" | "">("");
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [existingMilkTimes, setExistingMilkTimes] = useState(0);
+  const [existingMilkMl, setExistingMilkMl] = useState(0);
+  const [existingPoop, setExistingPoop] = useState(0);
+  const [existingPee, setExistingPee] = useState(0);
 
   const {
     register,
@@ -48,11 +72,9 @@ export default function DailyLogForm() {
     resolver: zodResolver(schema),
     defaultValues: {
       date: dateParam ?? format(new Date(), "yyyy-MM-dd"),
-      milkTimes: 0,
-      milkTotalMl: 0,
+      sleepHours: 0,
       poopTimes: 0,
       peeTimes: 0,
-      sleepHours: 0,
       note: "",
     },
   });
@@ -63,14 +85,31 @@ export default function DailyLogForm() {
       if (!log) return;
       reset({
         date: log.date,
-        milkTimes: log.milkTimes,
-        milkTotalMl: log.milkTotalMl,
+        tempMorning: log.tempMorning,
+        tempAfternoon: log.tempAfternoon,
+        jaundiceAMForehead: log.jaundiceAMForehead,
+        jaundiceAMFace: log.jaundiceAMFace,
+        jaundiceAMChest: log.jaundiceAMChest,
+        jaundicePMForehead: log.jaundicePMForehead,
+        jaundicePMFace: log.jaundicePMFace,
+        jaundicePMChest: log.jaundicePMChest,
+        weightKg: log.weightKg,
+        sleepHours: log.sleepHours,
+        formulaMl: log.formulaMl,
+        breastMilkMl: log.breastMilkMl,
+        formulaTimes: log.formulaTimes,
+        breastMilkTimes: log.breastMilkTimes,
         poopTimes: log.poopTimes,
         peeTimes: log.peeTimes,
-        sleepHours: log.sleepHours,
         note: log.note,
       });
-      setSymptomsTags(log.symptomsTags);
+      setBath(log.bath ?? "");
+      setSleepQuality(log.sleepQuality ?? "");
+      setSymptomsTags(log.symptomsTags ?? []);
+      setExistingMilkTimes(log.milkTimes);
+      setExistingMilkMl(log.milkTotalMl);
+      setExistingPoop(log.poopTimes);
+      setExistingPee(log.peeTimes);
     });
   }, [dateParam, reset]);
 
@@ -81,19 +120,42 @@ export default function DailyLogForm() {
   }
 
   async function onSubmit(data: FormValues) {
+    const existing = await db.dailyLogs.get(data.date);
     await db.dailyLogs.put({
-      ...data,
+      ...(existing ?? {}),
+      date: data.date,
+      milkTimes: existing?.milkTimes ?? 0,
+      milkTotalMl: existing?.milkTotalMl ?? 0,
+      poopTimes: data.poopTimes,
+      peeTimes: data.peeTimes,
+      sleepHours: data.sleepHours,
+      note: data.note,
       symptomsTags,
+      tempMorning: data.tempMorning,
+      tempAfternoon: data.tempAfternoon,
+      jaundiceAMForehead: data.jaundiceAMForehead,
+      jaundiceAMFace: data.jaundiceAMFace,
+      jaundiceAMChest: data.jaundiceAMChest,
+      jaundicePMForehead: data.jaundicePMForehead,
+      jaundicePMFace: data.jaundicePMFace,
+      jaundicePMChest: data.jaundicePMChest,
+      bath,
+      weightKg: data.weightKg,
+      sleepQuality,
+      formulaMl: data.formulaMl,
+      breastMilkMl: data.breastMilkMl,
+      formulaTimes: data.formulaTimes,
+      breastMilkTimes: data.breastMilkTimes,
     });
     toast.success("保存成功");
-    navigate(-1);
+    navigate("/daily-log");
   }
 
   async function onDelete() {
     if (!dateParam) return;
     await db.dailyLogs.delete(dateParam);
     toast.success("已删除");
-    navigate(-1);
+    navigate("/daily-log");
   }
 
   return (
@@ -104,10 +166,7 @@ export default function DailyLogForm() {
         onBack={() => navigate(-1)}
         action={
           isEdit ? (
-            <IconButton
-              color="error"
-              onClick={() => setDeleteOpen(true)}
-            >
+            <IconButton color="error" onClick={() => setDeleteOpen(true)}>
               <Trash2 className="h-4 w-4" />
             </IconButton>
           ) : undefined
@@ -129,102 +188,343 @@ export default function DailyLogForm() {
         </DialogActions>
       </Dialog>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="px-4 space-y-5">
-        {/* Date */}
-        <TextField
-          label="日期"
-          type="date"
-          fullWidth
-          size="small"
-          disabled={isEdit}
-          slotProps={{ inputLabel: { shrink: true } }}
-          error={!!errors.date}
-          helperText={errors.date?.message}
-          {...register("date")}
-        />
+      <form onSubmit={handleSubmit(onSubmit)} className="px-4 space-y-4">
+        {/* 日期 */}
+        <Card variant="outlined" className="rounded-xl">
+          <CardContent className="p-4 space-y-3">
+            <Typography variant="subtitle2" className="font-semibold text-muted-foreground">
+              日期
+            </Typography>
+            <TextField
+              label="日期"
+              type="date"
+              fullWidth
+              size="small"
+              disabled={isEdit}
+              slotProps={{ inputLabel: { shrink: true } }}
+              error={!!errors.date}
+              helperText={errors.date?.message}
+              {...register("date")}
+            />
+          </CardContent>
+        </Card>
 
-        {/* Milk row */}
-        <div className="grid grid-cols-2 gap-3">
-          <TextField
-            label="喂奶次数"
-            type="number"
-            fullWidth
-            size="small"
-            slotProps={{ htmlInput: { min: 0 } }}
-            {...register("milkTimes")}
-          />
-          <TextField
-            label="总奶量 (ml)"
-            type="number"
-            fullWidth
-            size="small"
-            slotProps={{ htmlInput: { min: 0 } }}
-            {...register("milkTotalMl")}
-          />
-        </div>
-
-        {/* Poop & Pee row */}
-        <div className="grid grid-cols-2 gap-3">
-          <TextField
-            label="便便次数"
-            type="number"
-            fullWidth
-            size="small"
-            slotProps={{ htmlInput: { min: 0 } }}
-            {...register("poopTimes")}
-          />
-          <TextField
-            label="尿尿次数"
-            type="number"
-            fullWidth
-            size="small"
-            slotProps={{ htmlInput: { min: 0 } }}
-            {...register("peeTimes")}
-          />
-        </div>
-
-        {/* Sleep */}
-        <TextField
-          label="睡眠时长 (小时)"
-          type="number"
-          fullWidth
-          size="small"
-          slotProps={{ htmlInput: { min: 0, step: 0.5 } }}
-          {...register("sleepHours")}
-        />
-
-        {/* Symptoms */}
-        <div className="space-y-2">
-          <Typography variant="body2" className="font-medium">
-            症状标记
-          </Typography>
-          <div className="flex flex-wrap gap-2">
-            {SYMPTOM_OPTIONS.map((opt) => (
-              <Chip
-                key={opt}
-                label={opt}
+        {/* 体温 */}
+        <Card variant="outlined" className="rounded-xl">
+          <CardContent className="p-4 space-y-3">
+            <Typography variant="subtitle2" className="font-semibold text-muted-foreground">
+              体温 °C
+            </Typography>
+            <div className="grid grid-cols-2 gap-3">
+              <TextField
+                label="上午"
+                type="number"
+                fullWidth
                 size="small"
-                variant={symptomsTags.includes(opt) ? "filled" : "outlined"}
-                color={symptomsTags.includes(opt) ? "primary" : "default"}
-                onClick={() => toggleSymptom(opt)}
-                className="cursor-pointer select-none"
+                placeholder="36.5"
+                slotProps={{ htmlInput: { step: 0.1 } }}
+                {...register("tempMorning")}
               />
-            ))}
-          </div>
-        </div>
+              <TextField
+                label="下午"
+                type="number"
+                fullWidth
+                size="small"
+                placeholder="36.5"
+                slotProps={{ htmlInput: { step: 0.1 } }}
+                {...register("tempAfternoon")}
+              />
+            </div>
+          </CardContent>
+        </Card>
 
-        {/* Note */}
-        <TextField
-          label="备注"
-          multiline
-          rows={3}
-          fullWidth
-          size="small"
-          placeholder="今天的特别记录…"
-          {...register("note")}
-        />
+        {/* 黄疸 */}
+        <Card variant="outlined" className="rounded-xl">
+          <CardContent className="p-4 space-y-3">
+            <Typography variant="subtitle2" className="font-semibold text-muted-foreground">
+              黄疸 mg/dL
+            </Typography>
+            <div className="space-y-2">
+              <Typography variant="caption" color="text.secondary">
+                早（上午）
+              </Typography>
+              <div className="grid grid-cols-3 gap-2">
+                <TextField
+                  label="额头"
+                  type="number"
+                  size="small"
+                  fullWidth
+                  slotProps={{
+                    htmlInput: { step: 0.1 },
+                    inputLabel: { style: { fontSize: 12 } },
+                  }}
+                  {...register("jaundiceAMForehead")}
+                />
+                <TextField
+                  label="脸"
+                  type="number"
+                  size="small"
+                  fullWidth
+                  slotProps={{
+                    htmlInput: { step: 0.1 },
+                    inputLabel: { style: { fontSize: 12 } },
+                  }}
+                  {...register("jaundiceAMFace")}
+                />
+                <TextField
+                  label="胸"
+                  type="number"
+                  size="small"
+                  fullWidth
+                  slotProps={{
+                    htmlInput: { step: 0.1 },
+                    inputLabel: { style: { fontSize: 12 } },
+                  }}
+                  {...register("jaundiceAMChest")}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Typography variant="caption" color="text.secondary">
+                晚（下午）
+              </Typography>
+              <div className="grid grid-cols-3 gap-2">
+                <TextField
+                  label="额头"
+                  type="number"
+                  size="small"
+                  fullWidth
+                  slotProps={{
+                    htmlInput: { step: 0.1 },
+                    inputLabel: { style: { fontSize: 12 } },
+                  }}
+                  {...register("jaundicePMForehead")}
+                />
+                <TextField
+                  label="脸"
+                  type="number"
+                  size="small"
+                  fullWidth
+                  slotProps={{
+                    htmlInput: { step: 0.1 },
+                    inputLabel: { style: { fontSize: 12 } },
+                  }}
+                  {...register("jaundicePMFace")}
+                />
+                <TextField
+                  label="胸"
+                  type="number"
+                  size="small"
+                  fullWidth
+                  slotProps={{
+                    htmlInput: { step: 0.1 },
+                    inputLabel: { style: { fontSize: 12 } },
+                  }}
+                  {...register("jaundicePMChest")}
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-        {/* Submit */}
+        {/* 沐浴 & 体重 */}
+        <Card variant="outlined" className="rounded-xl">
+          <CardContent className="p-4 space-y-3">
+            <Typography variant="subtitle2" className="font-semibold text-muted-foreground">
+              沐浴 & 体重
+            </Typography>
+            <div className="space-y-2">
+              <Typography variant="caption" color="text.secondary">
+                沐浴方式
+              </Typography>
+              <div className="flex gap-2 flex-wrap">
+                {(["游泳", "洗澡", "未洗"] as const).map((opt) => {
+                  const val = opt === "未洗" ? "" : opt;
+                  const selected = bath === val;
+                  return (
+                    <Chip
+                      key={opt}
+                      label={opt}
+                      size="small"
+                      variant={selected ? "filled" : "outlined"}
+                      color={selected ? "primary" : "default"}
+                      onClick={() => setBath(selected ? "" : (val as "游泳" | "洗澡" | ""))}
+                      className="cursor-pointer select-none"
+                    />
+                  );
+                })}
+              </div>
+            </div>
+            <TextField
+              label="体重 (kg)"
+              type="number"
+              fullWidth
+              size="small"
+              slotProps={{ htmlInput: { step: 0.01 } }}
+              {...register("weightKg")}
+            />
+          </CardContent>
+        </Card>
+
+        {/* 睡眠 */}
+        <Card variant="outlined" className="rounded-xl">
+          <CardContent className="p-4 space-y-3">
+            <Typography variant="subtitle2" className="font-semibold text-muted-foreground">
+              睡眠
+            </Typography>
+            <div className="space-y-2">
+              <Typography variant="caption" color="text.secondary">
+                睡眠质量
+              </Typography>
+              <div className="flex gap-2">
+                {(["佳", "一般"] as const).map((opt) => {
+                  const selected = sleepQuality === opt;
+                  return (
+                    <Chip
+                      key={opt}
+                      label={opt}
+                      size="small"
+                      variant={selected ? "filled" : "outlined"}
+                      color={selected ? "primary" : "default"}
+                      onClick={() => setSleepQuality(selected ? "" : opt)}
+                      className="cursor-pointer select-none"
+                    />
+                  );
+                })}
+              </div>
+            </div>
+            <TextField
+              label="睡眠时长 (小时)"
+              type="number"
+              fullWidth
+              size="small"
+              slotProps={{ htmlInput: { min: 0, step: 0.5 } }}
+              {...register("sleepHours")}
+            />
+          </CardContent>
+        </Card>
+
+        {/* 喂养 */}
+        <Card variant="outlined" className="rounded-xl">
+          <CardContent className="p-4 space-y-3">
+            <Typography variant="subtitle2" className="font-semibold text-muted-foreground">
+              喂养
+            </Typography>
+            <div className="grid grid-cols-2 gap-3">
+              <TextField
+                label="奶粉量 (ml)"
+                type="number"
+                fullWidth
+                size="small"
+                slotProps={{ htmlInput: { min: 0 } }}
+                {...register("formulaMl")}
+              />
+              <TextField
+                label="奶粉次数"
+                type="number"
+                fullWidth
+                size="small"
+                slotProps={{ htmlInput: { min: 0 } }}
+                {...register("formulaTimes")}
+              />
+              <TextField
+                label="母乳量 (ml)"
+                type="number"
+                fullWidth
+                size="small"
+                slotProps={{ htmlInput: { min: 0 } }}
+                {...register("breastMilkMl")}
+              />
+              <TextField
+                label="母乳次数"
+                type="number"
+                fullWidth
+                size="small"
+                slotProps={{ htmlInput: { min: 0 } }}
+                {...register("breastMilkTimes")}
+              />
+            </div>
+            {isEdit && (
+              <Typography variant="caption" color="text.secondary">
+                事件记录：{existingMilkTimes} 次 / {existingMilkMl} ml
+              </Typography>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* 大便 & 小便 */}
+        <Card variant="outlined" className="rounded-xl">
+          <CardContent className="p-4 space-y-3">
+            <Typography variant="subtitle2" className="font-semibold text-muted-foreground">
+              大便 & 小便
+            </Typography>
+            <div className="grid grid-cols-2 gap-3">
+              <TextField
+                label="便便次数"
+                type="number"
+                fullWidth
+                size="small"
+                slotProps={{ htmlInput: { min: 0 } }}
+                {...register("poopTimes")}
+              />
+              <TextField
+                label="尿尿次数"
+                type="number"
+                fullWidth
+                size="small"
+                slotProps={{ htmlInput: { min: 0 } }}
+                {...register("peeTimes")}
+              />
+            </div>
+            {isEdit && (
+              <Typography variant="caption" color="text.secondary">
+                事件记录：便 {existingPoop} 次 / 尿 {existingPee} 次
+              </Typography>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* 症状标记 */}
+        <Card variant="outlined" className="rounded-xl">
+          <CardContent className="p-4 space-y-3">
+            <Typography variant="subtitle2" className="font-semibold text-muted-foreground">
+              症状标记
+            </Typography>
+            <div className="flex flex-wrap gap-2">
+              {SYMPTOM_OPTIONS.map((opt) => (
+                <Chip
+                  key={opt}
+                  label={opt}
+                  size="small"
+                  variant={symptomsTags.includes(opt) ? "filled" : "outlined"}
+                  color={symptomsTags.includes(opt) ? "primary" : "default"}
+                  onClick={() => toggleSymptom(opt)}
+                  className="cursor-pointer select-none"
+                />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 其他备注 */}
+        <Card variant="outlined" className="rounded-xl">
+          <CardContent className="p-4 space-y-3">
+            <Typography variant="subtitle2" className="font-semibold text-muted-foreground">
+              其他备注
+            </Typography>
+            <TextField
+              label="备注"
+              multiline
+              rows={3}
+              fullWidth
+              size="small"
+              placeholder="今天的特别记录…"
+              {...register("note")}
+            />
+          </CardContent>
+        </Card>
+
+        {/* 保存 */}
         <Button
           type="submit"
           variant="contained"

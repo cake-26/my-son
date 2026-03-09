@@ -24,6 +24,7 @@ export default function Dashboard() {
   );
 
   const today = format(new Date(), "yyyy-MM-dd");
+  const yesterday = format(subDays(new Date(), 1), "yyyy-MM-dd");
   const todayLog = useLiveQuery(() => db.dailyLogs.get(today), [today]);
 
   const sevenDaysAgo = format(subDays(new Date(), 7), "yyyy-MM-dd");
@@ -161,6 +162,15 @@ export default function Dashboard() {
           >
             <Calendar className="h-3.5 w-3.5" />
             记录今天
+          </Button>
+          <Button
+            variant="outlined"
+            size="small"
+            className="flex-shrink-0 gap-1.5"
+            onClick={() => navigate(`/daily-log/${yesterday}/edit`)}
+          >
+            <Calendar className="h-3.5 w-3.5" />
+            记录昨天
           </Button>
           <Button
             variant="outlined"
