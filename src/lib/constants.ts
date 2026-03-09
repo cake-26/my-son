@@ -7,4 +7,4 @@ export const DIAPER_KINDS = ['便', '尿'] as const;
 export const POOP_TEXTURES = ['稀', '糊', '成形', '硬'] as const;
 export const POOP_COLORS = ['黄', '绿', '黑', '红'] as const;
 export const MOOD_OPTIONS = ['😊', '😐', '😢', '😤', '😴', '🥰'] as const;
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;

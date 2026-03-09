@@ -13,6 +13,7 @@ interface BackupData {
   vaccineRecords: unknown[];
   milestones: unknown[];
   journalEntries: unknown[];
+  illnessRecords: unknown[];
 }
 
 export async function exportData(): Promise<string> {
@@ -26,6 +27,7 @@ export async function exportData(): Promise<string> {
     vaccineRecords,
     milestones,
     journalEntries,
+    illnessRecords,
   ] = await Promise.all([
     db.profiles.toArray(),
     db.dailyLogs.toArray(),
@@ -36,6 +38,7 @@ export async function exportData(): Promise<string> {
     db.vaccineRecords.toArray(),
     db.milestones.toArray(),
     db.journalEntries.toArray(),
+    db.illnessRecords.toArray(),
   ]);
 
   const data: BackupData = {
@@ -50,6 +53,7 @@ export async function exportData(): Promise<string> {
     vaccineRecords,
     milestones,
     journalEntries,
+    illnessRecords,
   };
 
   return JSON.stringify(data, null, 2);
@@ -64,7 +68,7 @@ export async function importData(json: string): Promise<void> {
 
   await db.transaction(
     'rw',
-    [db.profiles, db.dailyLogs, db.feedEvents, db.sleepEvents, db.diaperEvents, db.growthRecords, db.vaccineRecords, db.milestones, db.journalEntries],
+    [db.profiles, db.dailyLogs, db.feedEvents, db.sleepEvents, db.diaperEvents, db.growthRecords, db.vaccineRecords, db.milestones, db.journalEntries, db.illnessRecords],
     async () => {
       await Promise.all([
         db.profiles.clear(),
@@ -76,6 +80,7 @@ export async function importData(json: string): Promise<void> {
         db.vaccineRecords.clear(),
         db.milestones.clear(),
         db.journalEntries.clear(),
+        db.illnessRecords.clear(),
       ]);
 
       await Promise.all([
@@ -88,6 +93,7 @@ export async function importData(json: string): Promise<void> {
         data.vaccineRecords?.length && db.vaccineRecords.bulkAdd(data.vaccineRecords as never[]),
         data.milestones?.length && db.milestones.bulkAdd(data.milestones as never[]),
         data.journalEntries?.length && db.journalEntries.bulkAdd(data.journalEntries as never[]),
+        data.illnessRecords?.length && db.illnessRecords.bulkAdd(data.illnessRecords as never[]),
       ]);
     },
   );
