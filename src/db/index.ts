@@ -88,6 +88,16 @@ export interface JournalEntry {
   mood?: string;
 }
 
+export interface IllnessRecord {
+  id?: number;
+  date: string;
+  symptoms: string;
+  medicines: string;
+  dosage: string;
+  doctor: string;
+  note: string;
+}
+
 class BabyDB extends Dexie {
   profiles!: Table<Profile, number>;
   dailyLogs!: Table<DailyLog, string>;
@@ -98,6 +108,7 @@ class BabyDB extends Dexie {
   vaccineRecords!: Table<VaccineRecord, number>;
   milestones!: Table<Milestone, number>;
   journalEntries!: Table<JournalEntry, number>;
+  illnessRecords!: Table<IllnessRecord, number>;
 
   constructor() {
     super('BabyDB');
@@ -112,6 +123,10 @@ class BabyDB extends Dexie {
       vaccineRecords: '++id, date',
       milestones: '++id, date',
       journalEntries: '++id, datetime',
+    });
+
+    this.version(2).stores({
+      illnessRecords: '++id, date',
     });
   }
 }

@@ -19,6 +19,8 @@ const Journal = lazy(() => import("@/pages/Journal"));
 const JournalForm = lazy(() => import("@/pages/JournalForm"));
 const ProfilePage = lazy(() => import("@/pages/Profile"));
 const Backup = lazy(() => import("@/pages/Backup"));
+const Illness = lazy(() => import("@/pages/Illness"));
+const IllnessForm = lazy(() => import("@/pages/IllnessForm"));
 
 function Loading() {
   return (
@@ -57,6 +59,9 @@ export default function App() {
             <Route path="journal" element={<Journal />} />
             <Route path="journal/new" element={<JournalForm />} />
             <Route path="journal/:id/edit" element={<JournalForm />} />
+            <Route path="illness" element={<Illness />} />
+            <Route path="illness/new" element={<IllnessForm />} />
+            <Route path="illness/:id/edit" element={<IllnessForm />} />
             <Route path="profile" element={<ProfilePage />} />
             <Route path="backup" element={<Backup />} />
           </Route>

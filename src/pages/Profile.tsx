@@ -13,6 +13,7 @@ import {
   BookOpen,
   Database,
   ChevronRight,
+  Stethoscope,
 } from "lucide-react";
 import { db } from "@/db";
 import {
@@ -39,6 +40,7 @@ const NAV_LINKS = [
   { to: "/growth", icon: TrendingUp, label: "成长记录", color: "text-green-500" },
   { to: "/vaccines", icon: Syringe, label: "疫苗记录", color: "text-blue-500" },
   { to: "/milestones", icon: Star, label: "里程碑", color: "text-amber-500" },
+  { to: "/illness", icon: Stethoscope, label: "生病用药", color: "text-red-500" },
   { to: "/journal", icon: BookOpen, label: "育儿心得", color: "text-purple-500" },
   { to: "/backup", icon: Database, label: "备份管理", color: "text-gray-500" },
 ] as const;
@@ -108,6 +110,7 @@ export default function ProfilePage() {
                 label="姓名 *"
                 fullWidth
                 placeholder="宝宝的名字"
+                InputLabelProps={{ shrink: true }}
                 {...register("name")}
                 error={!!errors.name}
                 helperText={errors.name?.message}
@@ -117,6 +120,7 @@ export default function ProfilePage() {
                 label="昵称"
                 fullWidth
                 placeholder="宝宝的小名"
+                InputLabelProps={{ shrink: true }}
                 {...register("nickname")}
               />
 
